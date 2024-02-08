@@ -1,11 +1,11 @@
-from basic.payload import builder
+
 import os
 import socket
 import sys
 
 sys.path.insert(1, os.path.abspath(
     os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..')))
-
+from basic.payload import builder
 
 class BasicClient(object):
     def __init__(self, name, ipaddr="127.0.0.1", port=2000):
@@ -62,7 +62,7 @@ class BasicClient(object):
 
 
 if __name__ == '__main__':
-    clt = BasicClient("frida_kahlo", "localhost", 8005)
+    clt = BasicClient("frida_kahlo", "localhost", 2000)
     while True:
         m = input("enter message: ")
         if m == '' or m == 'exit':
