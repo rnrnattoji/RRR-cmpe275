@@ -1,5 +1,11 @@
-import socket
 from basic.payload import builder
+import os
+import socket
+import sys
+
+sys.path.insert(1, os.path.abspath(
+    os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..')))
+
 
 class BasicClient(object):
     def __init__(self, name, ipaddr="127.0.0.1", port=2000):
@@ -29,10 +35,10 @@ class BasicClient(object):
         if self._clt is not None:
             return
 
-        addr = (self.ipaddr,self.port)
+        addr = (self.ipaddr, self.port)
         self._clt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._clt.connect(addr)
-        #self._clt.setblocking(False)
+        # self._clt.setblocking(False)
 
     def join(self, group):
         self.group = group
@@ -43,7 +49,7 @@ class BasicClient(object):
 
         print(f"sending to group {self.group} from {self.name}: {text}")
         bldr = builder.BasicBuilder()
-        m = bldr.encode(self.name,self.group,text)
+        m = bldr.encode(self.name, self.group, text)
         self._clt.send(bytes(m, "utf-8"))
 
     def groups(self):
@@ -56,7 +62,7 @@ class BasicClient(object):
 
 
 if __name__ == '__main__':
-    clt = BasicClient("frida_kahlo","127.0.0.1",2000)
+    clt = BasicClient("frida_kahlo", "localhost", 8005)
     while True:
         m = input("enter message: ")
         if m == '' or m == 'exit':
