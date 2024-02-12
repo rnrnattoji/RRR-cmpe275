@@ -1,1 +1,0 @@
-/usr/bin/clang++-18 -Wall -fpermissive -O2 -g CMakeFiles/demoapp.dir/demoapp.cpp.o -o ../bin/demoapp  -lpthread 
