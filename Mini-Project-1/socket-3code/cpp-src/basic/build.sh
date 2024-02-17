@@ -6,11 +6,13 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$SCRIPT_DIR" || exit 1
 
-clang_path="$(which clang-18)"
+if ! clang_path="$(which clang)"; then
+    clang_path="$(which clang-18)"
+fi
+
 clang_flag="clang++-18"
 
-if [ -z "$clang_path" ]; then
-    clang_path="$(which clang)"
+if [ "$clang_path" == "/opt/homebrew/opt/llvm/bin/clang" ]; then
     clang_flagg="clang++-"
 fi
 
