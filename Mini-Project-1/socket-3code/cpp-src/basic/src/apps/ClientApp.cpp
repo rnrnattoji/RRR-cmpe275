@@ -16,7 +16,10 @@ int main(int argc, char **argv) {
     clt.connect();
 
     std::stringstream msg;
-    msg << "hello. My name is inigo montoya." << std::ends;
+    std::string input;
+    std::cout<< "Enter a message (to end type exit): ";
+    std::getline(std::cin, input);
+    msg << input << std::ends;
     clt.sendMessage(msg.str());
      
     std::cout << "sleeping a bit before exiting..." << std::endl;
