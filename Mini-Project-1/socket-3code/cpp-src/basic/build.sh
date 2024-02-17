@@ -23,3 +23,19 @@ cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPIL
 cmake --build build --config Debug --target all -j 18 --
 
 cmake --build build --config Debug --target install -j 18 --
+
+printf "Build Complete!\n"
+read -rp "Type server to run server, client to run client: " input
+if [ ! "$input" == "client" ] && [ ! "$input" == "server" ]; then
+  exit 
+fi
+
+if [ "$input" == "server" ]; then
+    "${SCRIPT_DIR}"/build/bin/serverApp
+fi
+
+if [ "$input" == "client" ]; then
+    "${SCRIPT_DIR}"/build/bin/clientApp
+fi
+
+exit 0
