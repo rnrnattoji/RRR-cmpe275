@@ -33,7 +33,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VER
 
    # Opt 4: to use clang-tidy w/o database
    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-   set(CMAKE_CXX_CLANG_TIDY "clang-tidy-18;-checks=* --")
+   set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=* --")
 
 else ()
    # if using any other compiler/version, fail
