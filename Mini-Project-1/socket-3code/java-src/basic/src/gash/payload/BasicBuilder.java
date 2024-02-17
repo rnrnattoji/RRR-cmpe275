@@ -13,8 +13,12 @@ public class BasicBuilder {
 	}
 
 	public String encode(Message msg) {
+		var s = new StringBuilder();
+		s.append(msg.getGroup()).append(",").append(msg.getName()).append(",").append(msg.getText());
+		String payload = s.toString();
+
 		var sb = new StringBuilder();
-		sb.append(msg.getGroup()).append(",").append(msg.getName()).append(",").append(msg.getText());
+		sb.append(String.format("%04d", payload.length())).append(",").append(payload);
 
 		return sb.toString();
 	}
