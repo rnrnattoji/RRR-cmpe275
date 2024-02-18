@@ -1,11 +1,7 @@
-
-import os
 import socket
-import sys
 
-sys.path.insert(1, os.path.abspath(
-    os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..')))
-from basic.payload import builder
+from ..payload import builder
+
 
 class BasicClient(object):
     def __init__(self, name, ipaddr="127.0.0.1", port=2000):
@@ -50,6 +46,8 @@ class BasicClient(object):
         print(f"sending to group {self.group} from {self.name}: {text}")
         bldr = builder.BasicBuilder()
         m = bldr.encode(self.name, self.group, text)
+        mb = bytes(m, "utf-8")
+        print(len(mb))
         self._clt.send(bytes(m, "utf-8"))
 
     def groups(self):
@@ -62,11 +60,18 @@ class BasicClient(object):
 
 
 if __name__ == '__main__':
-    clt = BasicClient("frida_kahlo", "localhost", 2000)
+    name = str(input("Please Enter you Name (DEFAULT: RNR): ").strip() or "RNR")
+    address = str(input("Please Enter the Server Address that you want to connect (DEFAULT: 0.0.0.0): ").strip() or "0.0.0.0")
+    port = int(input("Please Enter the Server Port Number (DEFAULT: 2000): ").strip() or "2000")
+
+    clt = BasicClient(name, address, port)
     while True:
-        m = input("enter message: ")
+        m = str(input("\nEnter message ('exit' to quit): "))
         if m == '' or m == 'exit':
             break
         else:
+            # for i in range(0, 5000):
+            #     m += 'a'
+            # m += 'b'
             clt.sendMsg(m)
-            clt.sendMsg(m)
+            # clt.sendMsg(m)
