@@ -27,7 +27,7 @@ public class BasicServer {
 		try {
 			socket = new ServerSocket(port);
 
-			System.out.println("Server Host: " + socket.getInetAddress().getHostAddress());
+			System.out.println("Server Address: " + socket.getInetAddress().getHostAddress() +":" + this.port);
 
 			while (forever) {
 				Socket s = socket.accept();
