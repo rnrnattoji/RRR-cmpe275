@@ -5,13 +5,15 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$SCRIPT_DIR" || exit 1
+clang_path="$(which clang)"
+if ! clang_path="$(which clang)"; then
+    clang_path="$(which clang-18)"
+fi
 
-clang_path="$(which clang-18)"
 clang_flag="clang++-18"
 
-if [ -z "$clang_path" ]; then
-    clang_path="$(which clang)"
-    clang_flagg="clang++-"
+if [ "$clang_path" == "/opt/homebrew/opt/llvm/bin/clang" ]; then
+    clang_flag="clang++"
 fi
 
 rm -rf build
@@ -21,3 +23,19 @@ cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPIL
 cmake --build build --config Debug --target all -j 18 --
 
 cmake --build build --config Debug --target install -j 18 --
+
+printf "Build Complete!\n"
+read -rp "Type server to run server, client to run client: " input
+if [ ! "$input" == "client" ] && [ ! "$input" == "server" ]; then
+  exit 
+fi
+
+if [ "$input" == "server" ]; then
+    "${SCRIPT_DIR}"/build/bin/serverApp
+fi
+
+if [ "$input" == "client" ]; then
+    "${SCRIPT_DIR}"/build/bin/clientApp
+fi
+
+exit 0
