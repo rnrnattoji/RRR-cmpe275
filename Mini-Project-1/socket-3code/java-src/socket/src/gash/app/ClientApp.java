@@ -19,9 +19,9 @@ public class ClientApp {
 	}
 
 	public static void main(String[] args) {
-		var myClient = new BasicClient("app", "127.0.0.1", 2000);
+		var myClient = new BasicClient("127.0.0.1", 2000);
 		myClient.connect();
-		myClient.join("pets/dogs");
+		// myClient.join("pets/dogs");
 
 		var br = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
