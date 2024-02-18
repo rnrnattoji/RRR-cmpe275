@@ -26,6 +26,12 @@ public class ClientApp {
 		var br = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			try {
+
+				if (!myClient.isConnected()) {
+					System.out.println("Server connection lost. Exiting...");
+					break;
+				}
+
 				System.out.print("\nenter message ('exit' to quit): ");
 				var m = br.readLine();
 				if (m.length() == 0 || "exit".equalsIgnoreCase(m))
@@ -33,8 +39,16 @@ public class ClientApp {
 
 				myClient.sendMessage(m);
 			} catch (Exception ex) {
+				System.out.println("An error occurred: " + ex.getMessage());
 				break;
 			}
+		}
+
+		myClient.stop();
+        try {
+			br.close();
+		} catch (Exception e) {
+			System.out.println("An error occurred: " + e.getMessage());
 		}
 	}
 }
