@@ -9,6 +9,7 @@ class BasicClient(object):
         self.name = name
         self.ipaddr = ipaddr
         self.port = port
+        self.msgs = []
 
         self.group = "public"
 
@@ -34,21 +35,51 @@ class BasicClient(object):
         addr = (self.ipaddr, self.port)
         self._clt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._clt.connect(addr)
+        print(f"\nConnected to Server with Address:{self.ipaddr} and port:{self.port}")
         # self._clt.setblocking(False)
 
+    def is_connection_alive(self):
+        try:
+            # Attempt to send a minimal message to check the connection
+            self._clt.sendall(b' ')
+            # Poll the socket to check for errors or closed connection
+            self._clt.getpeername()
+            return True
+        except (socket.error, AttributeError):
+            return False
+            
     def join(self, group):
         self.group = group
 
-    def sendMsg(self, text):
+    def sendMsg(self, text) -> str:
         if self._clt is None:
             raise RuntimeError("No connection to server exists")
+        
+        if self.is_connection_alive():
+            print(f"sending to group {self.group} from {self.name}: {text}")
+            bldr = builder.BasicBuilder()
+            m = bytes(bldr.encode(self.name, self.group, text), "utf-8")
+            self._clt.send(m) 
+        else:
+            print("\nServer is Down")
+            self.__del__()
+            inp = str(input("\nDo you want to reconnect? ('Y' or 'N') "))
+            if inp == "Y":
+                while True:
+                    try:
+                        self.connect()
+                        break
+                    except ConnectionRefusedError:
+                        inp_retry = str(input("\nNot able to connect! Do you want to retry? ('Y' or 'N') "))
+                        self.__del__()
+                        if inp_retry != "Y":
+                            raise RuntimeError("\nNo connection to server exists")
+            else:
+                raise RuntimeError("\nNo connection to server exists")
 
-        print(f"sending to group {self.group} from {self.name}: {text}")
-        bldr = builder.BasicBuilder()
-        m = bldr.encode(self.name, self.group, text)
-        mb = bytes(m, "utf-8")
-        print(len(mb))
-        self._clt.send(bytes(m, "utf-8"))
+
+    def storeMsg(self, msg):
+        self.msgs.append(msg)
 
     def groups(self):
         # return list of groups
@@ -70,8 +101,10 @@ if __name__ == '__main__':
         if m == '' or m == 'exit':
             break
         else:
+            try:
             # for i in range(0, 5000):
             #     m += 'a'
             # m += 'b'
-            clt.sendMsg(m)
-            # clt.sendMsg(m)
+                clt.sendMsg(m)
+            except RuntimeError as e:
+                break
