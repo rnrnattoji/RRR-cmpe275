@@ -27,5 +27,5 @@
 # the command uses relative paths, the script (.sh) is
 # dependent (sensitive to) on where it is envoked.
 
-java -cp .:./classes:lib/*.jar gash.app.ServerApp 
+java --enable-preview -cp .:./classes:lib/*.jar gash.app.ServerApp 
 

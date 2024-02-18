@@ -5,5 +5,5 @@
 #JAVA_HOME=/where/am/i
 #${JAVA_HOME}/java -cp .:./classes:lib/*.jar gash.app.BasicClientApp 
 
-java -cp .:./classes:lib/*.jar gash.app.ClientApp 
+java --enable-preview -cp .:./classes:lib/*.jar gash.app.ClientApp 
 
