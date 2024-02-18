@@ -39,6 +39,10 @@ public class BasicClient {
 	// 	this.group = group;
 	// }
 
+	public boolean isConnected() {
+		return this.clt != null && this.clt.isConnected() && !this.clt.isClosed();
+	}
+
 	public void connect() {
 		if (this.clt != null) {
 			return;
@@ -48,13 +52,18 @@ public class BasicClient {
 			this.clt = new Socket(this.ipaddr, this.port);
 			System.out.println("Connected to " + clt.getInetAddress().getHostAddress());
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Unable to connect to server! Maybe it is not running.");
 		}
 	}
 
 	public void sendMessage(String message) {
+		if (!isConnected()) {
+			System.out.println("No connection, text not sent");
+			return;
+		}
+
 		if (this.clt == null) {
-			System.out.println("no connection, text not sent");
+			System.out.println("No connection, text not sent");
 			return;
 		}
 
@@ -62,8 +71,12 @@ public class BasicClient {
 			BasicBuilder builder = new BasicBuilder();
 			byte[] msg = builder.encode(new Message(message)).getBytes();
 			this.clt.getOutputStream().write(msg);
+		} catch (IOException e) {
+			System.out.println("Failed to send message, server might be unavailable");
+			stop();
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Unexpected error occured");
+			stop();
 		}
 	}
 }
