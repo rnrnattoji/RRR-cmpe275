@@ -36,7 +36,7 @@ class BasicServer(object):
         #    self._svr = socket.create_server(addr)
         
         self._svr = socket.create_server(addr)
-        self._svr.listen(10)
+        self._svr.listen(1)
 
         print(f"Server Host: {self.ipaddr} is listening on PORT: {self.port}")
 
@@ -83,31 +83,18 @@ class SessionHandler(threading.Thread):
     def run(self):
         while self.good:
             try:
-                # initial_chunk = self._cltconn.recv(2)
-                # print(len(initial_chunk))
-                # MSGLEN = int(initial_chunk.decode("utf-8").split(",", 1)[0])
+                buf = b''
+                while True:
+                    data_chunk = self._cltconn.recv(1024)  # Receive in chunks of 1024 bytes
+                    if data_chunk == b'':
+                        break
+                    if data_chunk == b'\0':
+                        continue
+                    if b'\0' in data_chunk:
+                        buf += data_chunk.replace(b'\0', b'')
+                        break  # No more data to receive
+                    buf += data_chunk
 
-                # chunks = [initial_chunk]
-                # bytes_recd = len(initial_chunk)
-                # while bytes_recd < MSGLEN:
-                #     chunk = self._cltconn.recv(2048)
-                #     if chunk == b'':
-                #         raise RuntimeError("socket connection broken")
-                #     chunks.append(chunk)
-                #     bytes_recd = bytes_recd + len(chunk)
-
-                # buf = b''.join(chunks)
-
-                # chunks = []
-                # while True:
-                #     chunk = self._cltconn.recv(2048)
-                #     if chunk is None:
-                #         break
-                #     chunks.append(chunk)
-               
-                # buf = b''.join(chunks)
-
-                buf = self._cltconn.recv(2048)
                 if len(buf) <= 0:
                     self.good = False
                 else:

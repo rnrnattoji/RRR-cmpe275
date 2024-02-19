@@ -6,7 +6,7 @@ class BasicBuilder(object):
     def encode(self, name, group, msg):
         # TODO encode message
         # return f"{len(msg)}"
-        payload = (f"{group},{name},{msg}")
+        payload = (f"{group},{name},{msg+"\0"}")
         return (f"{len(payload):04d},{payload}")
 
     def decode(self, raw):
