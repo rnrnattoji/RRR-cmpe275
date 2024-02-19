@@ -19,7 +19,7 @@ public class ClientApp {
 	}
 
 	public static void main(String[] args) {
-		var myClient = new BasicClient("127.0.0.1", 2000);
+		var myClient = new BasicClient("JAVA_CLIENT","127.0.0.1", 2000);
 		myClient.connect();
 		// myClient.join("pets/dogs");
 
