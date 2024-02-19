@@ -53,20 +53,18 @@ public class ClientApp {
 
 		while (true) {
 			try {
-
-				if (!myClient.isConnected()) {
-					System.out.println("Server connection lost. Exiting...");
-					break;
-				}
-
 				System.out.print("\nEnter message ('exit' to quit): ");
 				var m = br.readLine();
 				if (m.length() == 0 || "exit".equalsIgnoreCase(m))
 					break;
 
-				myClient.sendMessage(m);
-			} catch (Exception ex) {
-				System.out.println("An error occurred: " + ex.getMessage());
+				try {
+					myClient.sendMessage(m);
+				} catch (Exception e) {
+					break;
+				}
+			} catch (Exception e) {
+				System.out.println("An error occurred: " + e.getMessage());
 				break;
 			}
 		}

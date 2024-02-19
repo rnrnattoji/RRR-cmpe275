@@ -66,10 +66,13 @@ class SessionHandler extends Thread {
 			while (forever) {
 				try {
 					int len = in.read(raw);
-					if (len == 0)
+					if (len == 0 )
 						continue;
-					else if (len == -1)
+					else if (len == 1 && raw[0] == 0) {
+						continue;
+					} else if(len == -1) {
 						break;
+					}
 
 					Message msg = builder.decode(raw);
 					if (msg != null) {

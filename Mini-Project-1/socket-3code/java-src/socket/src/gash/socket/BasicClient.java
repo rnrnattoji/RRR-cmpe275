@@ -1,6 +1,9 @@
 package gash.socket;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import gash.payload.BasicBuilder;
@@ -39,10 +42,6 @@ public class BasicClient {
 		this.group = group;
 	}
 
-	public boolean isConnected() {
-		return this.clt != null && this.clt.isConnected() && !this.clt.isClosed();
-	}
-
 	public void connect() {
 		if (this.clt != null) {
 			return;
@@ -51,34 +50,88 @@ public class BasicClient {
 		try {
 			this.clt = new Socket(this.ipaddr, this.port);
 			System.out.println("\nConnected to Server with Address:" + this.ipaddr + " and port:" + this.port);
-		} catch (Exception e) {
-			System.out.println("Unable to connect to server! Maybe it is not running.");
+		}  catch (Exception e) {
+				System.out.println("An error occurred connecting to server: "+ e.getMessage());
+	
 		}
 	}
 
 	public void sendMessage(String message) {
-		if (!isConnected()) {
-			System.out.println("No connection, text not sent");
-			return;
+
+		if (isServerAlive()) {
+            try {
+				System.out.println("sending to group " + this.group + " from " + this.name + ": " + message);
+	
+				BasicBuilder builder = new BasicBuilder();
+				byte[] msg = builder.encode(new Message(name, group, message)).getBytes();
+				this.clt.getOutputStream().write(msg);
+			
+			} catch (IOException e) {
+				System.out.println("IO error occured");
+				stop();
+			} catch (Exception e) {
+				System.out.println("Unexpected error occured");
+				stop();
+			}
+        } else {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			System.out.println("Server is Down");
+			System.out.print("Do you want to reconnect? ('Y' or 'N'): ");
+			try {
+				String answer = reader.readLine();
+				if ("Y".equalsIgnoreCase(answer)) {
+					while(true) {
+						try {
+							this.connect();
+							break;
+						} catch (Exception e) {
+							System.out.println("\n Not able to connect? Do you want to retry? ('Y' or 'N') ");
+							this.stop();
+							answer = reader.readLine();
+							if (!"Y".equalsIgnoreCase(answer)) {
+								throw new  RuntimeException("User does not want to retry");
+							}
+						}
+					}
+				}
+			} catch (IOException readException) {
+				System.out.println("An error occurred reading input. Exiting...");
+			}
+		}
 		}
 
-		if (this.clt == null) {
-			System.out.println("No connection, text not sent");
-			return;
-		}
+// 	private boolean isServerAlive() {
+//         if (this.clt == null) return false;
 
+//         try {
+//             this.clt.getOutputStream().write(0);
+//             this.clt.getOutputStream().flush();
+//             return true; 
+//         } catch (IOException e) {
+//             return false;
+//         }  
+//    }
+
+//    private boolean isServerAlive() {
+//         try {
+//             this.clt.getOutputStream().write(0);
+// 			this.clt.getOutputStream().flush();
+// 			this.clt.getOutputStream().write(0);
+// 			this.clt.getOutputStream().flush();
+//             return true;
+//         } catch (IOException e) {
+//             return false;
+//         }
+//     }
+
+	private boolean isServerAlive() {
 		try {
-			System.out.println("sending to group " + this.group + " from " + this.name + ": " + message);
-
-			BasicBuilder builder = new BasicBuilder();
-			byte[] msg = builder.encode(new Message(name, group, message)).getBytes();
-			this.clt.getOutputStream().write(msg);
+			this.clt.getOutputStream().write(new byte[]{0});
+			this.clt.getOutputStream().write(new byte[]{0});
+			System.out.println(this.clt.getRemoteSocketAddress());
+			return true;
 		} catch (IOException e) {
-			System.out.println("Failed to send message, server might be unavailable");
-			stop();
-		} catch (Exception e) {
-			System.out.println("Unexpected error occured");
-			stop();
+			return false;
 		}
 	}
 }
