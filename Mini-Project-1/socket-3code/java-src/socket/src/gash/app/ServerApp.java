@@ -15,20 +15,31 @@ class ServerApp {
 	}
 
 	public static void main(String[] args) {
-		var host = "127.0.0.1";
-		int port = -1;
+		var host = "0.0.0.0";
+		int port = 2001;
 
 		Scanner scanner = new Scanner(System.in); 
+
+        System.out.print("Please Enter the Server Address (DEFAULT: 0.0.0.0): "); 
+        String hostInput = scanner.nextLine().trim();
+        if (!hostInput.isEmpty()) {
+            host = hostInput;
+        }
 	    
 		while (true) {
-            System.out.println("Enter port number which the server will run on: "); 
+            System.out.print("Please Enter the Server Port Number (DEFAULT: 2001): "); 
+            String portInput = scanner.nextLine().trim();
+            if (portInput.isEmpty()) {
+                break;
+            }
             
             try {
-                port = scanner.nextInt(); 
+                int inputPort = Integer.parseInt(portInput);
 
-				if (port < 1024 || port > 65535) {
+				if (inputPort < 1024 || inputPort > 65535) {
                     throw new IllegalArgumentException("Port number must be between 1024 and 65535.");
                 }
+                port = inputPort;
                 break;
 
             } catch (InputMismatchException e) {
