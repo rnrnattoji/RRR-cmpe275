@@ -14,8 +14,10 @@ import gash.payload.Message;
  * 
  */
 class SessionHandler extends Thread {
+	private static int sessionCount = 0;
+	private final int sessionId;
 	private Socket connection;
-	private String name;
+	// private String name;
 	private boolean forever = true;
 	
 
@@ -24,6 +26,11 @@ class SessionHandler extends Thread {
 		
 		// allow server to exit if
 		this.setDaemon(true);
+
+		synchronized (SessionHandler.class) {
+            sessionCount++; 
+            sessionId = sessionCount;
+        }
 	}
 
 	/**
@@ -45,7 +52,7 @@ class SessionHandler extends Thread {
 	 * process incoming data
 	 */
 	public void run() {
-		System.out.println("Session " + this.getId() + " started");
+		System.out.println("Session " + sessionId + " started\n");
 
 		try {
 			connection.setSoTimeout(2000);
@@ -64,8 +71,13 @@ class SessionHandler extends Thread {
 					else if (len == -1)
 						break;
 
-					Message msg = builder.decode(new String(raw, 0, len).getBytes());
-					System.out.println(msg);
+					Message msg = builder.decode(raw);
+					if (msg != null) {
+						String modifiedName = msg.getName() + " (Session " + sessionId + ")";
+						String modifiedMsg = "from " + modifiedName + ", to group: " + msg.getGroup() + ", text: " + msg.getText();
+						System.out.println(modifiedMsg + "\n");
+					}
+					// System.out.println(msg + "\n");
 					
 				} catch (InterruptedIOException ioe) {
 				}
@@ -74,7 +86,7 @@ class SessionHandler extends Thread {
 			e.printStackTrace();
 		} finally {
 			try {
-				System.out.println("Session " + this.getId() + " ending");
+				System.out.println("Session " + sessionId + " ending");
 				System.out.flush();
 				stopSession();
 			} catch (Exception re) {
