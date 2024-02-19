@@ -90,8 +90,8 @@ class SessionHandler(threading.Thread):
                         break
                     if data_chunk == b'\0':
                         continue
-                    if b'\0' in data_chunk:
-                        buf += data_chunk.replace(b'\0', b'')
+                    if data_chunk.endswith(b'\0'):
+                        buf += data_chunk.rstrip(b'\0')
                         break  # No more data to receive
                     buf += data_chunk
 
