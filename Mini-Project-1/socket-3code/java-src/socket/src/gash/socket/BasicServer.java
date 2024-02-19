@@ -35,7 +35,9 @@ public class BasicServer {
 					break;
 				}
 
-				System.out.println("--> server got a client connection");
+				String clientAddress = s.getRemoteSocketAddress().toString();
+				String clientIp = clientAddress.replaceAll("^/|:\\d+$", "");
+				System.out.println("---> Server got a Client Connection from " + clientIp);
 				var sh = new SessionHandler(s);
 				sh.start();
 			}
