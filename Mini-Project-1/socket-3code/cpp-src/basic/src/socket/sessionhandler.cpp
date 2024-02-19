@@ -102,7 +102,7 @@
             std::cerr << "---> session " << session.fd << " got n = " 
                         << n << ", errno = " << errno << std::endl;
          }
-         
+         std::cout<<"This is the value of "<<n<<std::endl;
          if (n > 0) {
             idle = false;
             auto results = splitter(session,raw,n);

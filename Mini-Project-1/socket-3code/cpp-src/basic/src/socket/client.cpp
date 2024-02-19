@@ -87,6 +87,7 @@ void basic::BasicClient::connect() {
    }
    
    stat = ::connect(this->clt, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+   std::cout<<"This is the status: "<<stat<<std::endl;
    if (stat < 0) {
       std::stringstream err;
       err << "failed to connect() to server, err = " << errno << std::endl;
