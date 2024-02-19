@@ -68,7 +68,7 @@ class SessionHandler extends Thread {
 					int len = in.read(raw);
 					if (len == 0 )
 						continue;
-					else if (len == 1 && raw[0] == 0) {
+					else if (raw[0] == 0) {
 						continue;
 					} else if(len == -1) {
 						break;

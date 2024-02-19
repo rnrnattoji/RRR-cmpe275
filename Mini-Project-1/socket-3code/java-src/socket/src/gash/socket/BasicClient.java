@@ -51,8 +51,8 @@ public class BasicClient {
 			this.clt = new Socket(this.ipaddr, this.port);
 			System.out.println("\nConnected to Server with Address:" + this.ipaddr + " and port:" + this.port);
 		}  catch (Exception e) {
-				System.out.println("An error occurred connecting to server: "+ e.getMessage());
-	
+				// System.out.println("An error occurred connecting to server: "+ e.getMessage());
+				throw new  RuntimeException("Connection refused");
 		}
 	}
 
@@ -76,6 +76,7 @@ public class BasicClient {
         } else {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println("Server is Down");
+			this.stop();
 			System.out.print("Do you want to reconnect? ('Y' or 'N'): ");
 			try {
 				String answer = reader.readLine();
@@ -85,7 +86,7 @@ public class BasicClient {
 							this.connect();
 							break;
 						} catch (Exception e) {
-							System.out.println("\n Not able to connect? Do you want to retry? ('Y' or 'N') ");
+							System.out.println("\nNot able to connect? Do you want to retry? ('Y' or 'N') ");
 							this.stop();
 							answer = reader.readLine();
 							if (!"Y".equalsIgnoreCase(answer)) {
@@ -93,6 +94,8 @@ public class BasicClient {
 							}
 						}
 					}
+				} else {
+					throw new  RuntimeException("User does not want to retry");
 				}
 			} catch (IOException readException) {
 				System.out.println("An error occurred reading input. Exiting...");
@@ -128,7 +131,6 @@ public class BasicClient {
 		try {
 			this.clt.getOutputStream().write(new byte[]{0});
 			this.clt.getOutputStream().write(new byte[]{0});
-			System.out.println(this.clt.getRemoteSocketAddress());
 			return true;
 		} catch (IOException e) {
 			return false;

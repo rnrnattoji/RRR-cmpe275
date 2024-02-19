@@ -48,28 +48,32 @@ public class ClientApp {
         }
 
 		var myClient = new BasicClient(name, serverAddress, port);
-		myClient.connect();
-		// myClient.join("pets/dogs");
-
-		while (true) {
-			try {
-				System.out.print("\nEnter message ('exit' to quit): ");
-				var m = br.readLine();
-				if (m.length() == 0 || "exit".equalsIgnoreCase(m))
-					break;
-
+		
+		try {
+			myClient.connect();
+			while (true) {
 				try {
-					myClient.sendMessage(m);
+					System.out.print("\nEnter message ('exit' to quit): ");
+					var m = br.readLine();
+					if (m.length() == 0 || "exit".equalsIgnoreCase(m))
+						break;
+	
+					try {
+						myClient.sendMessage(m);
+					} catch (Exception e) {
+						break;
+					}
 				} catch (Exception e) {
+					System.out.println("An error occurred: " + e.getMessage());
 					break;
 				}
-			} catch (Exception e) {
-				System.out.println("An error occurred: " + e.getMessage());
-				break;
 			}
+		} catch (Exception e) {
+			System.out.println("\nUnable to connect to the server");
 		}
+		// myClient.join("pets/dogs");
 
-		myClient.stop();
+		// myClient.stop();
         try {
 			br.close();
 		} catch (Exception e) {
