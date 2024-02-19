@@ -68,6 +68,8 @@ public class BasicClient {
 		}
 
 		try {
+			System.out.println("sending to group " + this.group + " from " + this.name + ": " + message);
+
 			BasicBuilder builder = new BasicBuilder();
 			byte[] msg = builder.encode(new Message(name, group, message)).getBytes();
 			this.clt.getOutputStream().write(msg);
