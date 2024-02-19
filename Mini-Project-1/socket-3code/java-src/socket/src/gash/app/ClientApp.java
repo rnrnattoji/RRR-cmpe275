@@ -13,17 +13,44 @@ import gash.socket.BasicClient;
  * 
  */
 public class ClientApp {
-	private BasicClient myClient;
+	// private BasicClient myClient;
 
 	public ClientApp() {
 	}
 
 	public static void main(String[] args) {
-		var myClient = new BasicClient("JAVA_CLIENT","127.0.0.1", 2000);
+		var br = new BufferedReader(new InputStreamReader(System.in));
+        String serverAddress = "0.0.0.0";
+        int port = 2001;
+		String name = "JAVA_CLIENT";
+
+        try {
+			System.out.print("Please Enter client Name (DEFAULT: JAVA_CLIENT): ");
+            String nameInput = br.readLine().trim();
+            if (!nameInput.isEmpty()) {
+                name = nameInput;
+            }
+
+            System.out.print("Please Enter the Server Address that you want to connect (DEFAULT: 0.0.0.0): ");
+            String addressInput = br.readLine().trim();
+            if (!addressInput.isEmpty()) {
+                serverAddress = addressInput;
+            }
+
+            System.out.print("Please Enter the Server Port Number (DEFAULT: 2001): ");
+            String portInput = br.readLine().trim();
+            if (!portInput.isEmpty()) {
+                port = Integer.parseInt(portInput);
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred while reading client name, server address or port: " + e.getMessage());
+            return;
+        }
+
+		var myClient = new BasicClient(name, serverAddress, port);
 		myClient.connect();
 		// myClient.join("pets/dogs");
 
-		var br = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			try {
 
@@ -32,7 +59,7 @@ public class ClientApp {
 					break;
 				}
 
-				System.out.print("\nenter message ('exit' to quit): ");
+				System.out.print("\nEnter message ('exit' to quit): ");
 				var m = br.readLine();
 				if (m.length() == 0 || "exit".equalsIgnoreCase(m))
 					break;
@@ -48,7 +75,7 @@ public class ClientApp {
         try {
 			br.close();
 		} catch (Exception e) {
-			System.out.println("An error occurred: " + e.getMessage());
+			System.out.println("An unexpected error occurred: " + e.getMessage());
 		}
 	}
 }

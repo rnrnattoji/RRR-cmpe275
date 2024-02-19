@@ -13,9 +13,9 @@ public class BasicClient {
 	private String group = "public";
 	private Socket clt;
 
-	public BasicClient() {
-		this("JAVA_CLIENT","127.0.0.1", 2000);
-	}
+	// public BasicClient() {
+	// 	this("JAVA_CLIENT","127.0.0.1", 2000);
+	// }
 
 	public BasicClient(String name, String ipaddr, int port) {
 		this.name = name;
@@ -50,7 +50,7 @@ public class BasicClient {
 
 		try {
 			this.clt = new Socket(this.ipaddr, this.port);
-			System.out.println("Connected to " + clt.getInetAddress().getHostAddress());
+			System.out.println("\nConnected to Server with Address:" + this.ipaddr + " and port:" + this.port);
 		} catch (Exception e) {
 			System.out.println("Unable to connect to server! Maybe it is not running.");
 		}
