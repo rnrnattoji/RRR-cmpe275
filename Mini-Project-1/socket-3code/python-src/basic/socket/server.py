@@ -88,7 +88,7 @@ class SessionHandler(threading.Thread):
                     data_chunk = self._cltconn.recv(1024)  # Receive in chunks of 1024 bytes
                     if data_chunk == b'':
                         break
-                    if data_chunk == b'\0':
+                    if data_chunk.replace(b'\0', b'') == b'':
                         continue
                     if data_chunk.endswith(b'\0'):
                         buf += data_chunk.rstrip(b'\0')

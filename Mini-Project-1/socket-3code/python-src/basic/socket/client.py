@@ -42,8 +42,9 @@ class BasicClient(object):
         try:
             # Attempt to send a minimal message to check the connection
             self._clt.sendall(b'\0')
+            self._clt.sendall(b'\0')
             # Poll the socket to check for errors or closed connection
-            self._clt.getpeername()
+            # self._clt.getpeername()
             return True
         except (socket.error, AttributeError):
             return False
@@ -103,9 +104,9 @@ if __name__ == '__main__':
                 break
             else:
                 try:
-                    for i in range(0, 5000):
-                        m += 'a'
-                    m += 'b'
+                    # for i in range(0, 5000):
+                    #     m += 'a'
+                    # m += 'b'
                     clt.sendMsg(m)
                 except RuntimeError as e:
                     break
