@@ -13,7 +13,7 @@ class input{
     unsigned int port;
 
     void getInput(std::string default_ip="127.0.0.1", unsigned int default_port=2000, std::string default_name="CPP_CLIENT" ){
-      std::cout<<"Please Enter Client Name  (DEFAULT:"<<default_name<<" )";
+      std::cout<<"Please Enter Name  (DEFAULT:"<<default_name<<" )";
       getline(std::cin, name);
       std::cout<<"Please Enter the Server Address you want to connect (DEFAULT:"<<default_ip<<" )";
       getline(std::cin, ip);

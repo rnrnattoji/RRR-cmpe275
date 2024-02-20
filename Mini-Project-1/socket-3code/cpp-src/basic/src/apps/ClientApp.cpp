@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     std::string input, default_ip="127.0.0.1", default_name="CPP_CLIENT";
     unsigned int default_port=2000;
 
-
+    //setting up the configuration
     configure::input config;
     config.getInput(default_ip, default_port, default_name);
     std::cout<<"This is the client data : "<<config.name<<" "<<config.ip<<" "<<config.port<<std::endl;  
