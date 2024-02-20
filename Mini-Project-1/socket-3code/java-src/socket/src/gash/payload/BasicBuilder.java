@@ -21,7 +21,7 @@ public class BasicBuilder {
 
 	public String encode(Message msg) {
         var s = new StringBuilder();
-        s.append(msg.getGroup()).append(",").append(msg.getName()).append(",").append(msg.getText());
+        s.append(msg.getGroup()).append(",").append(msg.getName()).append(",").append(msg.getText()+"\0");
         String payload = s.toString();
 
         var sb = new StringBuilder();

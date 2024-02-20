@@ -129,8 +129,8 @@ public class BasicClient {
 
 	private boolean isServerAlive() {
 		try {
-			this.clt.getOutputStream().write(new byte[]{0});
-			this.clt.getOutputStream().write(new byte[]{0});
+			this.clt.getOutputStream().write("\0".getBytes("UTF-8"));
+			this.clt.getOutputStream().write("\0".getBytes("UTF-8"));
 			return true;
 		} catch (IOException e) {
 			return false;
