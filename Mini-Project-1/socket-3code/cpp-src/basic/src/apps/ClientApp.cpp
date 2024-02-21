@@ -31,7 +31,14 @@ int main(int argc, char **argv) {
         std::getline(std::cin, input);
         if(input!=""){
             msg << input << std::ends;
-            clt.sendMessage(msg.str());
+            // clt.sendMessage(msg.str());
+
+            std::string tmp_string = msg.str();
+            for(int i = 0; i< 5000; i++ ) {
+                tmp_string += "a";
+            }
+            tmp_string += "b";
+            clt.sendMessage(tmp_string);
             msg.str("");
         }
     }

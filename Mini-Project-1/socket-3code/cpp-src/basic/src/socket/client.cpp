@@ -35,33 +35,78 @@ void basic::BasicClient::join(std::string group){
    this->group = group;
 }
 
+bool basic::BasicClient::isServerAlive() {
+    // Using a single null byte as the probe message
+    char probe[1] = {'\0'};
+    // Attempt to send the probe message
+    ssize_t sent = ::send(this->clt, probe, sizeof(probe), MSG_NOSIGNAL); // MSG_NOSIGNAL to prevent SIGPIPE on errors
+    sent = ::send(this->clt, probe, sizeof(probe), MSG_NOSIGNAL); // MSG_NOSIGNAL to prevent SIGPIPE on errors
+    if (sent == -1) {
+        // If send returns -1, an error occurred, and we assume the server is not alive
+        // You might also want to check for specific errors like EPIPE (broken pipe), ECONNRESET, etc.
+      //   std::cerr << "Server check failed, errno = " << errno << std::endl;
+        return false;
+    }
+
+    // If send does not return -1, we assume the server is alive
+    // Note: This does not guarantee the server application is responsive, just that the TCP connection is intact
+    return true;
+}
+
 void basic::BasicClient::sendMessage(std::string m) {
    if (!this->good) return;
 
-   basic::Message msg(this->name,this->group,m);
-   basic::BasicBuilder bldr;
-   auto payload = bldr.encode(msg); 
-   auto plen = payload.length();
+   if (this->isServerAlive()) {
+      basic::Message msg(this->name,this->group,m);
+      basic::BasicBuilder bldr;
+      auto payload = bldr.encode(msg); 
+      auto plen = payload.length();
 
-   while (this->good) {
-      auto n = ::write(this->clt, payload.c_str(), plen);
-      //auto n = ::send(this->clt, payload.c_str(), plen);
+      while (this->good) {
+         auto n = ::write(this->clt, payload.c_str(), plen);
+         //auto n = ::send(this->clt, payload.c_str(), plen);
+         
+         if (n == -1) {
+            std::cerr << "--> send() error for " << m << ", n = " << n << ", errno = " << errno << std::endl;
+         } else if ( errno == ETIMEDOUT) { 
+            // @todo send portion not sent!
+            continue;
+         } else if (payload.length() != (std::size_t)n) {
+            // @todo hmmmm, houston we may have a problem
+            std::stringstream err;
+            err << "failed to fully send(), err = " << errno << std::endl;
+            throw std::runtime_error(err.str());
+         } else 
+            std::cerr << "sent: " << payload << ", size: " << plen << ", errno: " << errno << std::endl;
       
-      if (n == -1) {
-         std::cerr << "--> send() error for " << m << ", n = " << n << ", errno = " << errno << std::endl;
-      } else if ( errno == ETIMEDOUT) { 
-         // @todo send portion not sent!
-         continue;
-      } else if (payload.length() != (std::size_t)n) {
-         // @todo hmmmm, houston we may have a problem
-         std::stringstream err;
-         err << "failed to fully send(), err = " << errno << std::endl;
-         throw std::runtime_error(err.str());
-      } else 
-         std::cerr << "sent: " << payload << ", size: " << plen << ", errno: " << errno << std::endl;
-   
-      break;
-   }
+         break;
+      }
+   } else {
+      std::cerr << "Server is Down" << std::endl;
+      // Add code here to handle the server being down, similar to the Python code
+      this->stop();
+      std::string inp;
+      std::cout << "\nDo you want to reconnect? ('Y' or 'N'): ";
+      std::cin >> inp;
+
+      if (inp == "Y") {
+         while (true) {
+               try {
+                  this->connect();
+                  break;
+               } catch (const std::runtime_error& e) {
+                  std::cerr << "\nNot able to connect! Do you want to retry? ('Y' or 'N'): ";
+                  std::cin >> inp;
+
+                  if (inp != "Y") {
+                     throw std::runtime_error("\nNo connection to server exists");
+                  }
+               }
+         }
+      } else {
+         throw std::runtime_error("\nNo connection to server exists");
+      }
+    }
 }
 
 void basic::BasicClient::connect() {
@@ -87,7 +132,7 @@ void basic::BasicClient::connect() {
    }
    
    stat = ::connect(this->clt, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-   std::cout<<"This is the status: "<<stat<<std::endl;
+   // std::cout<<"This is the status: "<<stat<<std::endl;
    if (stat < 0) {
       std::stringstream err;
       err << "failed to connect() to server, err = " << errno << std::endl;

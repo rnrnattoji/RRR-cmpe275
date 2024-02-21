@@ -39,8 +39,10 @@ std::string basic::BasicBuilder::encode(const basic::Message& m) {
    std::stringstream ss;
    ss << std::setfill('0') << std::setw(4) << r.length() 
       << "," << r; // NO! << std::ends;
-   
-   return ss.str();
+
+   std::string result = ss.str(); 
+   result += '\0';
+   return result;
 }
 
 basic::Message basic::BasicBuilder::decode(std::string raw) {

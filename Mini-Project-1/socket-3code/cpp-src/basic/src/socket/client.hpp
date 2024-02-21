@@ -32,6 +32,7 @@ class BasicClient {
       void stop();
       void sendMessage(std::string m) noexcept(false);
       void join(std::string group);
+      bool isServerAlive();
 
       void connect() noexcept(false);
 };
