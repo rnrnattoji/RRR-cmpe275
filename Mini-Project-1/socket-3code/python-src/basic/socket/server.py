@@ -87,7 +87,7 @@ class SessionHandler(threading.Thread):
             try:
                 buf = b''
                 while True:
-                    data_chunk = self._cltconn.recv(102400)  # Receive in chunks of 1024 bytes
+                    data_chunk = self._cltconn.recv(2048)  # Receive in chunks of 1024 bytes
                     if data_chunk == b'':
                         break
                     if data_chunk.replace(b'0000,', b'').replace(b'\0', b'') == b'':

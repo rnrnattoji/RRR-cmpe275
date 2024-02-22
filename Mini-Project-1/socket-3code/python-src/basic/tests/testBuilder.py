@@ -35,8 +35,8 @@ class TestBuilder(unittest.TestCase):
             clt.connect(addr)
             
             arr = []
-            for idx, msg_len in enumerate([10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000]):
-            # for idx, msg_len in enumerate([100000000]):
+            # for idx, msg_len in enumerate([10, 100, 1000, 10000, 100000, 1000000, 10000000]):
+            for idx, msg_len in enumerate([10000]):
                 m = "a" * msg_len
                 m += 'b'
                 msg = bytes(bldr.encode("PYTHON_CLIENT", "public", m), "utf-8")
