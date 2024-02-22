@@ -104,9 +104,10 @@ class SessionHandler extends Thread {
         byte[] messageBytes = buf.toByteArray();
 
         String newAsString = new String(messageBytes, 0, messageBytes.length, "UTF-8");
-        newAsString.replace("0000,", "").replace("\0", "");
+        newAsString = newAsString.replaceAll("0000,", "");
+        
         byte[] modifiedMessageBytes = newAsString.getBytes("UTF-8");
-        System.out.println(newAsString);
+
         if (modifiedMessageBytes.length > 0) {
           BasicBuilder builder = new BasicBuilder();
           Message msg = builder.decode(modifiedMessageBytes);
