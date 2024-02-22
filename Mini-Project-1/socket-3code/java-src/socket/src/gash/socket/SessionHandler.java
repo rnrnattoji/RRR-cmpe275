@@ -96,10 +96,17 @@ class SessionHandler extends Thread {
           buf.write(dataChunk, 0, bytesRead);
         }
 
+
+    
         byte[] messageBytes = buf.toByteArray();
-        if (messageBytes.length > 0) {
+
+        String newAsString = new String(messageBytes, 0, messageBytes.length, "UTF-8");
+        newAsString.replace("0000,", "").replace("\0", "");
+        byte[] modifiedMessageBytes = newAsString.getBytes("UTF-8");
+        
+        if (modifiedMessageBytes.length > 0) {
           BasicBuilder builder = new BasicBuilder();
-          Message msg = builder.decode(messageBytes);
+          Message msg = builder.decode(modifiedMessageBytes);
           if (msg != null) {
             String modifiedName =
               msg.getName() + " (Session " + sessionId + ")";
