@@ -72,6 +72,11 @@ class SessionHandler extends Thread {
             break;
           }
 
+          String chunkAsString = new String(dataChunk, 0, bytesRead, "UTF-8");
+          if (chunkAsString.replace("0000,", "").replace("\0", "").isEmpty()) {
+              continue; 
+          }
+
           boolean isNullChunk = true;
           for (int i = 0; i < bytesRead; i++) {
             if (dataChunk[i] != 0) {
