@@ -11,6 +11,7 @@ class BasicBuilder(object):
 
     def decode(self, raw):
         # TODO complete parsing
+        raw = raw.replace("0000,", "")
         parts = raw.split(",", 4)
         if len(parts) != 4:
             raise ValueError(f"message format error: {raw}")
