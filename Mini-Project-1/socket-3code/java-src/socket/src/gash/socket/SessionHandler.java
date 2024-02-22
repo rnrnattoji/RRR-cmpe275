@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 // import java.io.InterruptedIOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  *
@@ -51,9 +52,11 @@ class SessionHandler extends Thread {
    * process incoming data
    */
   public void run() {
+    long startTime = System.currentTimeMillis(); 
+
     System.out.println("Session " + sessionId + " started\n");
     try {
-      connection.setSoTimeout(0);
+      connection.setSoTimeout(5000);
       BufferedInputStream in = new BufferedInputStream(
         connection.getInputStream()
       );
@@ -103,7 +106,7 @@ class SessionHandler extends Thread {
         String newAsString = new String(messageBytes, 0, messageBytes.length, "UTF-8");
         newAsString.replace("0000,", "").replace("\0", "");
         byte[] modifiedMessageBytes = newAsString.getBytes("UTF-8");
-        
+        System.out.println(newAsString);
         if (modifiedMessageBytes.length > 0) {
           BasicBuilder builder = new BasicBuilder();
           Message msg = builder.decode(modifiedMessageBytes);
@@ -121,11 +124,15 @@ class SessionHandler extends Thread {
           }
         }
       }
+    } catch (SocketTimeoutException e ) {
+      System.out.println("Did not recieve any messages! Session timed out.");
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
+    }finally {
       try {
-        System.out.println("Session " + sessionId + " ending");
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("Session " + sessionId + " ending. Elapsed time: " + elapsedTime + " ms");
         System.out.flush();
         stopSession();
       } catch (Exception re) {
