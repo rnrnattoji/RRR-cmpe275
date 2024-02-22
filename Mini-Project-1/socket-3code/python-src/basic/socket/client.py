@@ -41,8 +41,8 @@ class BasicClient(object):
     def is_connection_alive(self):
         try:
             # Attempt to send a minimal message to check the connection
-            self._clt.sendall(b'\0')
-            self._clt.sendall(b'\0')
+            self._clt.sendall(b'0000,\0')
+            self._clt.sendall(b'0000,\0')
             # Poll the socket to check for errors or closed connection
             # self._clt.getpeername()
             return True
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                 break
             else:
                 try:
-                    # for i in range(0, 5000):
+                    # for i in range(0, 10000):
                     #     m += 'a'
                     # m += 'b'
                     clt.sendMsg(m)

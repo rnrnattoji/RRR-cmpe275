@@ -36,7 +36,7 @@ class BasicServer(object):
         #    self._svr = socket.create_server(addr)
         
         self._svr = socket.create_server(addr)
-        self._svr.listen(1)
+        self._svr.listen(10)
 
         print(f"Server Host: {self.ipaddr} is listening on PORT: {self.port}")
 
@@ -85,10 +85,10 @@ class SessionHandler(threading.Thread):
             try:
                 buf = b''
                 while True:
-                    data_chunk = self._cltconn.recv(1024)  # Receive in chunks of 1024 bytes
+                    data_chunk = self._cltconn.recv(102400)  # Receive in chunks of 1024 bytes
                     if data_chunk == b'':
                         break
-                    if data_chunk.replace(b'\0', b'') == b'':
+                    if data_chunk.replace(b'0000,', b'').replace(b'\0', b'') == b'':
                         continue
                     if data_chunk.endswith(b'\0'):
                         buf += data_chunk.rstrip(b'\0')
