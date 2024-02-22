@@ -1,4 +1,5 @@
 import socket
+import time
 import threading
 
 from ..payload import builder
@@ -81,6 +82,7 @@ class SessionHandler(threading.Thread):
             pass
 
     def run(self):
+        t = time.time()
         while self.good:
             try:
                 buf = b''
@@ -101,8 +103,9 @@ class SessionHandler(threading.Thread):
                     self.process(buf.decode("utf-8"))
             except Exception as e:
                 self.good = False
-
+        
         print(f"\nSession {self._cltnumber} ending")
+        print(f"\nElapse Time: {(time.time() - t) * 1000} ms")
 
 
 if __name__ == '__main__':
