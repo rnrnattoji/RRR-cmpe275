@@ -1,27 +1,36 @@
 package test;
 
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-
 import gash.payload.BasicBuilder;
 import gash.payload.Message;
+// Use the correct JUnit version consistently; here, JUnit 5 is used
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 public class BuilderTest {
-	static final String n = "fred", g = "dogs", t = "hello";
-	static final String msg = "dogs,fred,hello";
 
-	@Test
-	public void testBuilder() throws Exception {
-		BasicBuilder builder = new BasicBuilder();
+    static final String n = "fred", g = "dogs", t = "hello";
+    static final String expectedStart = "0014,dogs,fred,hello"; 
 
-		String s = builder.encode(new Message(n,g,t));
-		Assertions.assertEquals(msg,s);
+    @Test
+    public void testBuilder() throws Exception {
+        BasicBuilder builder = new BasicBuilder();
 
-		System.out.println("msg: " + s);
+        String encodedMessage = builder.encode(new Message(n, g, t));
 
-		var m = builder.decode(s.getBytes());
-		Assertions.assertEquals(m.getName(),n);
-		Assertions.assertEquals(m.getGroup(), g);
-		Assertions.assertEquals(m.getText(),t);
-	}
+        String lengthStr = encodedMessage.substring(0, 4);
+        int length = Integer.parseInt(lengthStr);
+
+        Assertions.assertEquals(length, encodedMessage.length() - 5 );
+
+        Assertions.assertTrue(encodedMessage.startsWith(lengthStr + ","));
+        Assertions.assertTrue(encodedMessage.contains(g + ","));
+        Assertions.assertTrue(encodedMessage.contains(n + ","));
+        Assertions.assertTrue(encodedMessage.endsWith(t + "\0"));
+
+        var m = builder.decode(encodedMessage.getBytes());
+
+        Assertions.assertEquals(m.getName(), n);
+        Assertions.assertEquals(m.getGroup(), g);
+        Assertions.assertEquals(m.getText(), t + "\0");
+    }
 }
