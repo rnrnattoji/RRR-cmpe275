@@ -6,7 +6,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 // import java.io.InterruptedIOException;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  *

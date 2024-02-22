@@ -31,7 +31,7 @@ public class BasicClient {
 			try {
 				this.clt.close();
 			} catch (IOException e) {
-				// TODO better error handling? yes!
+				System.out.println("IO Exception occurred: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
