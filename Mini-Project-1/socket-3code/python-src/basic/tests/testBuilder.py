@@ -29,8 +29,9 @@ class TestBuilder(unittest.TestCase):
     #     self.assertEqual(g, parts[1])
     #     self.assertEqual(t, parts[2])
     
-    def generate_message(self):
-        message_length = random.randint(100, 6000)
+    def generate_message(self, length):
+        # message_length = random.randint(100, 6000)
+        message_length = length
         message_content = ''.join(random.choices(string.ascii_letters + string.digits, k=message_length))
         message = f"{message_content}\0"
         total_length = len(message) + 4 + 6 + 11
@@ -43,17 +44,26 @@ class TestBuilder(unittest.TestCase):
         addr = ("0.0.0.0", 2000)
         clt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clt.connect(addr)
-
-        num_messages = random.randint(1000, 10000)
-        max_length = 0 
-
-        for _ in range(num_messages):
-            msg = self.generate_message()
-            max_length = max(max_length, len(msg))
-            clt.sendall(msg.encode('utf-8'))
-            print(f"Sent: {msg[:50]}...") 
         
-        print(f"Total messages sent: {num_messages}")
+        # To send specific number of messages
+        num_msg = 10000
+        for _ in range(num_msg):
+            msg_len = 4000
+            msg = self.generate_message(msg_len)
+            clt.sendall(msg.encode('utf-8'))
+            # print(f"Sent: {msg[:50]}...") 
+
+        # # Random messages sent
+        # num_messages = random.randint(1000, 10000)
+        # max_length = 0 
+
+        # for _ in range(num_messages):
+        #     msg = self.generate_message()
+        #     max_length = max(max_length, len(msg))
+        #     clt.sendall(msg.encode('utf-8'))
+        #     print(f"Sent: {msg[:50]}...") 
+        
+        # print(f"Total messages sent: {num_messages}")
 
     # def testPerformance(self):
     #     try:
