@@ -69,7 +69,7 @@
 
          // This is a hook for adaptive polling strategies. You can
          // experiment with priorization and fairness algorithms.
-         // optimizeAndWait(idle); //commenting out for performance measurement
+         optimizeAndWait(idle); //commenting out for performance measurement
       }
       auto stop = std::chrono::high_resolution_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
@@ -84,18 +84,6 @@
       char raw[2048] = {0};
       for (auto& session : this->sessions ) {
          if (session.fd == -1) continue;
-
-         /*
-            important errno values:
-            35 (EWOULDBLOCK)  - nonblocking mode, no data is available (not an error)
-            38 (ENOTSOCK)     - socket descriptor (fd) is not valid
-            42 (EPROTOTYPE)   - socket option not supported
-            54 (ECONNRESET)   - connection not available (bad)
-            60 (ETIMEDOUT)    - connection (read) timed out (maybe bad)
-
-            Ref: https://www.ibm.com/docs/en/zos/2.2.0?topic=errnos-sockets-return-code
-         */
-
          // reusable buffer to minimize memory fragmentation
          std::memset(raw,0,2048);
 
@@ -107,7 +95,6 @@
                         << n << ", errno = " << errno << std::endl;
          }
 
-         std::cout<<"This is the value of "<<n<<" "<<errno<<std::endl;
          if (n > 0) {
             idle = false;
             auto results = splitter(session,raw,n);
@@ -115,7 +102,8 @@
             process(results);
             results.clear();
          } else if (n == -1) {
-            if (errno == EWOULDBLOCK) {} /*read timeout - okay*/
+            if (errno == EWOULDBLOCK) {
+            } /*read timeout - okay*/
             else if (errno == ECONNRESET) {
                std::cerr << "--> a session was closed, [id: " 
                            << session.fd << ", cnt: " << session.count 
@@ -130,10 +118,17 @@
                break;
             }
          } else {
-            std::cerr<<"Client exited!";
+            std::cerr << "--> a session was closed, [id: " 
+                        << session.fd << ", cnt: " << session.count 
+                        << "]" << std::endl;
+            
+            // ref: https://en.wikipedia.org/wiki/Erase–remove_idiom
+            auto xfd = session.fd;
+            this->sessions.erase(std::remove_if(this->sessions.begin(), 
+                                 this->sessions.end(), [&xfd](const Session& s) {
+                                    return s.fd == xfd;}),this->sessions.end());
             idle = false;
-            this->good = false;
-            return idle;
+            break;
          } 
       }
 
@@ -163,7 +158,7 @@
       // if (optimize) {
       //    // todo add code to optimize processing
       // }
-      
+   
       if (idle) {
          // gradually slow down polling while no activity
          if (this->refreshRate < 3000) this->refreshRate += 250;

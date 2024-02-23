@@ -16,7 +16,6 @@ class Session {
     public:
         int fd;
         unsigned long count;
-        uint64_t lastTime; 
 
     public:
         Session() : fd(-1), count(0) {}
@@ -33,13 +32,12 @@ class Session {
 class SessionHandler {
     private:
         // compiler optimizer (-On) removes/leaves debug code
-        static const int sDebug = 2;  // 0,1,2
+        static const int sDebug = 1;  // 0,1,2
 
         bool good;
         unsigned int refreshRate;
         std::shared_ptr<std::thread> sessionThread;
         std::vector<Session> sessions;
-        //char buf[2048]; 
 
     public: 
         SessionHandler();
