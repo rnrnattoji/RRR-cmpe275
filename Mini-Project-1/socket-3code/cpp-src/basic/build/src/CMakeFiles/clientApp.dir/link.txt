@@ -1,1 +1,0 @@
-/usr/bin/clang++-18 -Wall -fpermissive -O2 -g CMakeFiles/clientApp.dir/apps/ClientApp.cpp.o -o ../bin/clientApp  ../lib/libbasic_socket.a -lpthread 

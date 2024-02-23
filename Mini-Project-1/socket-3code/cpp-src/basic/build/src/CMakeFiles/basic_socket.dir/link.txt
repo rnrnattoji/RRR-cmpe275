@@ -1,2 +1,0 @@
-/usr/bin/llvm-ar-18 qc ../lib/libbasic_socket.a CMakeFiles/basic_socket.dir/payload/basicbuilder.cpp.o CMakeFiles/basic_socket.dir/socket/sessionhandler.cpp.o CMakeFiles/basic_socket.dir/socket/client.cpp.o CMakeFiles/basic_socket.dir/socket/server.cpp.o
-/usr/bin/llvm-ranlib-18 ../lib/libbasic_socket.a
