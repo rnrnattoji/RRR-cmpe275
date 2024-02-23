@@ -4,13 +4,12 @@ import string
 import time
 
 def generate_message():
-    message_length = random.randint(100, 6000)
+    message_length = 6000
     message_content = ''.join(random.choices(string.ascii_letters + string.digits, k=message_length))
     message = f"{message_content}\0"
     total_length = len(message) + 4 + 6 + 11
     length_str = f"{total_length:04d}"
     final_message = f"{length_str},public,TEST_CLIENT,{message}"
-    time.sleep(1)
     return final_message
 
 def main():
@@ -20,16 +19,16 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((host, port))
 
-        num_messages = random.randint(1000, 10000)
+        num_messages = 1000
         max_length = 0 
 
         for _ in range(num_messages):
             msg = generate_message()
             max_length = max(max_length, len(msg))
             sock.sendall(msg.encode('utf-8'))
-            print(f"Sent: {msg[:50]}...") 
+            # print(f"Sent: {msg[:50]}...") 
         
-        print(f"Total messages sent: {num_messages}")
+        # print(f"Total messages sent: {num_messages}")
 
 if __name__ == "__main__":
     main()
