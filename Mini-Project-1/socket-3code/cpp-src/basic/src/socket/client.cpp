@@ -41,6 +41,7 @@ bool basic::BasicClient::isServerAlive() {
     // Attempt to send the probe message
     ssize_t sent = ::send(this->clt, probe, sizeof(probe), MSG_NOSIGNAL); // MSG_NOSIGNAL to prevent SIGPIPE on errors
     sent = ::send(this->clt, probe, sizeof(probe), MSG_NOSIGNAL); // MSG_NOSIGNAL to prevent SIGPIPE on errors
+
     if (sent == -1) {
         // If send returns -1, an error occurred, and we assume the server is not alive
         // You might also want to check for specific errors like EPIPE (broken pipe), ECONNRESET, etc.
@@ -136,7 +137,8 @@ void basic::BasicClient::connect() {
    if (stat < 0) {
       std::stringstream err;
       err << "failed to connect() to server, err = " << errno << std::endl;
-      throw std::runtime_error(err.str());
+      this->stop();
+      throw std::runtime_error("\nNo connection to server exists");
    }
 
    this->good = true;
