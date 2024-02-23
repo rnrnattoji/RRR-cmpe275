@@ -5,6 +5,7 @@ set(lib-srcs
         socket/sessionhandler.cpp
         socket/client.cpp
         socket/server.cpp
+        IO/input.hpp
 )
 
 # library targets

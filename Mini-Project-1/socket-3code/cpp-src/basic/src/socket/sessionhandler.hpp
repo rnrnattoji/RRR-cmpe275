@@ -16,7 +16,6 @@ class Session {
     public:
         int fd;
         unsigned long count;
-        uint64_t lastTime; 
 
     public:
         Session() : fd(-1), count(0) {}
@@ -39,7 +38,6 @@ class SessionHandler {
         unsigned int refreshRate;
         std::shared_ptr<std::thread> sessionThread;
         std::vector<Session> sessions;
-        //char buf[2048]; 
 
     public: 
         SessionHandler();
