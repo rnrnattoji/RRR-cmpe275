@@ -37,7 +37,7 @@ void basic::BasicClient::join(std::string group){
 
 bool basic::BasicClient::isServerAlive() {
     // Using a single null byte as the probe message
-    char probe[1] = {'\0'};
+    char probe[6] = "0000,";
     // Attempt to send the probe message
     ssize_t sent = ::send(this->clt, probe, sizeof(probe), MSG_NOSIGNAL); // MSG_NOSIGNAL to prevent SIGPIPE on errors
     sent = ::send(this->clt, probe, sizeof(probe), MSG_NOSIGNAL); // MSG_NOSIGNAL to prevent SIGPIPE on errors

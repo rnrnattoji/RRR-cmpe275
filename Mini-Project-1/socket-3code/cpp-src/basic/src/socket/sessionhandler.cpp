@@ -55,6 +55,7 @@
     * 
    */
    void basic::SessionHandler::run() {
+      auto start = std::chrono::high_resolution_clock::now();
       while (this->good) {
          auto idle = true;
          try {
@@ -68,8 +69,11 @@
 
          // This is a hook for adaptive polling strategies. You can
          // experiment with priorization and fairness algorithms.
-         optimizeAndWait(idle);
+         // optimizeAndWait(idle); //commenting out for performance measurement
       }
+      auto stop = std::chrono::high_resolution_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+      std::cerr << "Executed in: " << duration.count() << " milliseconds" << std::endl;
    }
 
    /**
@@ -102,7 +106,8 @@
             std::cerr << "---> session " << session.fd << " got n = " 
                         << n << ", errno = " << errno << std::endl;
          }
-         std::cout<<"This is the value of "<<n<<std::endl;
+
+         std::cout<<"This is the value of "<<n<<" "<<errno<<std::endl;
          if (n > 0) {
             idle = false;
             auto results = splitter(session,raw,n);
@@ -125,7 +130,10 @@
                break;
             }
          } else {
-            // no data
+            std::cerr<<"Client exited!";
+            idle = false;
+            this->good = false;
+            return idle;
          } 
       }
 
@@ -166,8 +174,9 @@
          }
 
          std::this_thread::sleep_for(std::chrono::milliseconds(this->refreshRate));
-      } else 
+      } else{
          this->refreshRate = 0;
+      }
    }
 
    /**

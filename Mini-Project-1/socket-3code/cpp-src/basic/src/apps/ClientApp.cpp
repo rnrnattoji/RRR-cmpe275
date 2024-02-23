@@ -29,20 +29,20 @@ int main(int argc, char **argv) {
     while(input!="exit"){        
         std::cout<< "Enter a message (to end type exit): ";
         std::getline(std::cin, input);
-        if(input!=""){
+        if(input!="" && input!="exit"){
             msg << input << std::ends;
-            // clt.sendMessage(msg.str());
+            clt.sendMessage(msg.str());
 
-            std::string tmp_string = msg.str();
-            for(int i = 0; i< 5000; i++ ) {
-                tmp_string += "a";
-            }
-            tmp_string += "b";
-            clt.sendMessage(tmp_string);
+            // std::string tmp_string = msg.str();
+            // for(int i = 0; i< 5000; i++ ) {
+            //     tmp_string += "a";
+            // }
+            // tmp_string += "b";
+            // clt.sendMessage(tmp_string);
             msg.str("");
         }
     }
-     
+    clt.stop();
     std::cout << "sleeping a bit before exiting..." << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
