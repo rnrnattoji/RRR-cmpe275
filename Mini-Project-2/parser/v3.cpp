@@ -11,6 +11,8 @@
 #include <sys/shm.h>
 #include <filesystem>
 #include <mpi.h>
+#include <omp.h>
+
 
 // Function to trim leading/trailing whitespaces from a string
 std::string trim(const std::string &str)
@@ -101,6 +103,7 @@ int main(int argc, char *argv[])
     std::vector<std::vector<std::string>> local_data;
 
     // Iterate through directory entries assigned to this process
+    #pragma omp parallel for shared(all_data, local_data, tmp_count)
     for (int i = start_index; i < end_index; ++i)
     {
         const auto &entry = entries[i];
@@ -114,11 +117,12 @@ int main(int argc, char *argv[])
             if (!csvFile.is_open())
             {
                 std::cerr << "Error: Could not open file '" << filePath << "'!" << std::endl;
-                MPI_Finalize();
-                return 1;
+                // Since this is a parallel loop, you cannot call MPI_Finalize here directly.
+                // Instead, handle the error appropriately based on your program's requirements.
+                // For simplicity, we just continue to the next iteration.
+                continue;
             }
 
-            
             // Read data line by line
             std::string line;
             while (std::getline(csvFile, line))
@@ -134,12 +138,14 @@ int main(int argc, char *argv[])
                 }
 
                 // Add the row vector to the shared data structure if world_rank == 0
-                if (world_rank == 0) {
-                    all_data->push_back(row);
+                #pragma omp critical // Ensure only one thread accesses shared data structure at a time
+                {
+                    if (world_rank == 0) {
+                        all_data->push_back(row);
+                    }
+                    local_data.push_back(row);
+                    tmp_count++;
                 }
-
-                local_data.push_back(row);
-                tmp_count ++;
             }
 
             // Close the file
@@ -154,25 +160,15 @@ int main(int argc, char *argv[])
 
     // Gather local data to root process
     if (world_rank == 0) {
-    // Iterate over all processes except the root process (rank 0)
         for (int i = 1; i < world_size; ++i) {
             int recv_size;
             MPI_Recv(&recv_size, 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            // Resize the all_data vector to accommodate the received data
             all_data->resize(all_data->size() + recv_size);
-
-            // Receive the data and copy it into the all_data vector
             MPI_Recv(all_data->data() + all_data->size() - recv_size, recv_size * sizeof(std::vector<std::string>), MPI_BYTE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
     } else {
-        // Get the size of local_data to send
         int send_size = local_data.size();
-
-        // Send the size of the data
         MPI_Send(&send_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-
-        // Send the actual data
         MPI_Send(local_data.data(), send_size * sizeof(std::vector<std::string>), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
     }
 
@@ -183,19 +179,14 @@ int main(int argc, char *argv[])
     // int local_rows = all_data->size();
     // MPI_Reduce(&local_rows, &total_rows, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
+    // Iterate over all_data and print its contents
     if (world_rank == 0 && all_data != nullptr) {
-        int dummy_count = 0;
         for (const auto& row : *all_data) {
-            dummy_count++;
             for (const auto& cell : row) {
                 std::cout << cell << " ";
             }
             std::cout << std::endl;
-            std::cout << "COUNT: " << dummy_count << std::endl;
         }
-
-        std::cout << "FINAL COUNT: " << dummy_count << std::endl;
-
     } else {
         std::cerr << "Error: all_data is null or world_rank is not 0" << std::endl;
     }
@@ -203,7 +194,7 @@ int main(int argc, char *argv[])
     // Detach shared memory segment
     shmdt(all_data);
 
-    // Remove shared memory segment (only done by one process)
+    // // Remove shared memory segment (only done by one process)
     if (world_rank == 0) {
         shmctl(shmid, IPC_RMID, NULL);
     }
