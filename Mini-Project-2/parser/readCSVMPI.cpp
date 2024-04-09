@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 
     std::filesystem::path rootFolderPath = "../airnow-2020fire/data"; // Adapt this path if needed
 
+    auto start = std::chrono::high_resolution_clock::now();
     // Define key for shared memory segment
     key_t key = 12345;
 
@@ -127,12 +128,15 @@ int main(int argc, char *argv[])
         std::cout << "Total number of rows: " << total_rows << std::endl;
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
     // Detach shared memory segment
     shmdt(all_data);
-
     // Remove shared memory segment (only done by one process)
     if (world_rank == 0) {
         shmctl(shmid, IPC_RMID, NULL);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Total Elapsed time: " << elapsed.count() << " microseconds\n";
     }
 
     MPI_Finalize();

@@ -218,10 +218,9 @@ int main(int argc, char *argv[])
     }
     std::cout << "RANK: " << world_rank << " COUNT: " << f_count << std::endl;
     
+    MPI_Barrier(MPI_COMM_WORLD);
     // Detach shared memory segment
     shmdt(shm);
-
-    MPI_Barrier(MPI_COMM_WORLD);
     // Remove shared memory segment (only done by one process)
     if (world_rank == 0) {
         shmctl(shmid, IPC_RMID, NULL);
