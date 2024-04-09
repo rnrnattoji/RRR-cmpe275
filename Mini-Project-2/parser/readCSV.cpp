@@ -16,7 +16,7 @@ std::string trim(const std::string &str)
 
 int main()
 {
-    std::filesystem::path rootFolderPath = "/home/rnr/study/cmpe275/RRR-cmpe275/Mini-Project-2/airnow-2020fire/data"; // Adapt this path if needed
+    std::filesystem::path rootFolderPath = "../airnow-2020fire/data"; // Adapt this path if needed
 
     // Iterate through the folder structure recursively
     for (const auto &entry : std::filesystem::recursive_directory_iterator(rootFolderPath))

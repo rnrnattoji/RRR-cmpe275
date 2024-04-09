@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::filesystem::path rootFolderPath = "/home/rnr/study/cmpe275/RRR-cmpe275/Mini-Project-2/airnow-2020fire/data"; // Adapt this path if needed
+    std::filesystem::path rootFolderPath = "../airnow-2020fire/data"; // Adapt this path if needed
 
     // Define key for shared memory segment
     key_t key = 12345;

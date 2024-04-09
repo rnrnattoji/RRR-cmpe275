@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     std::vector<std::string> csv_files_process;
 
     if (world_rank == 0) {
-        std::filesystem::path rootFolderPath = "/home/rnr/study/cmpe275/RRR-cmpe275/Mini-Project-2/airnow-2020fire/data"; // Adapt this path if needed
+        std::filesystem::path rootFolderPath = "../airnow-2020fire/data"; // Adapt this path if needed
 
         // Get directory entries for this process
         
@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
                 {   
                     file_path = entry.path().string();
                     csv_files_total.push_back(file_path);
+                    //Round-robin
                     route_process_num = (route_process_num % (world_size - 1)) + 1;
 
                     send_size = file_path.size() + 1;
