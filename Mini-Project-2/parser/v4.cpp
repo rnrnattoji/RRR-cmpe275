@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <mpi.h>
 #include <omp.h>
+#include <chrono> 
 
 
 // Function to trim leading/trailing whitespaces from a string
@@ -42,9 +43,12 @@ int main(int argc, char *argv[])
     std::vector<std::string> csv_files_total;
     std::vector<std::string> csv_files_process;
 
+    auto start = std::chrono::high_resolution_clock::now(); 
+
     if (world_rank == 0) {
         std::filesystem::path rootFolderPath = "../airnow-2020fire/data"; // Adapt this path if needed
 
+        start = std::chrono::high_resolution_clock::now(); 
         // Get directory entries for this process
         
         std::string file_path; 
@@ -217,9 +221,13 @@ int main(int argc, char *argv[])
     // Detach shared memory segment
     shmdt(shm);
 
+    MPI_Barrier(MPI_COMM_WORLD);
     // Remove shared memory segment (only done by one process)
     if (world_rank == 0) {
         shmctl(shmid, IPC_RMID, NULL);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Total Elapsed time: " << elapsed.count() << " microseconds\n";
     }
 
     MPI_Finalize();
