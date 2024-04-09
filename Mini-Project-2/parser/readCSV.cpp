@@ -17,6 +17,7 @@ std::string trim(const std::string &str)
 int main()
 {
     std::filesystem::path rootFolderPath = "../airnow-2020fire/data"; // Adapt this path if needed
+    auto start = std::chrono::high_resolution_clock::now();
 
     // Iterate through the folder structure recursively
     for (const auto &entry : std::filesystem::recursive_directory_iterator(rootFolderPath))
@@ -59,21 +60,25 @@ int main()
             csvFile.close();
 
             //   Print the parsed data (optional)
-            if (!data.empty())
-            {
-                for (const std::vector<std::string> &row : data)
-                {
-                    for (const std::string &cell : row)
-                    {
-                        std::cout << cell << " ";
-                    }
-                    std::cout << std::endl;
-                }
-            }
+            // if (!data.empty())
+            // {
+            //     for (const std::vector<std::string> &row : data)
+            //     {
+            //         for (const std::string &cell : row)
+            //         {
+            //             std::cout << cell << " ";
+            //         }
+            //         std::cout << std::endl;
+            //     }
+            // }
 
-            std::cout << "Processed file: " << filePath << std::endl;
+            // std::cout << "Processed file: " << filePath << std::endl;
         }
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Elapsed time: " << elapsed.count() << " microseconds\n";
 
     return 0;
 }
