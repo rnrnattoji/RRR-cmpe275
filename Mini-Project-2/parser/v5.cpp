@@ -15,14 +15,6 @@
 #include <chrono> 
 
 
-// Function to trim leading/trailing whitespaces from a string
-std::string trim(const std::string &str)
-{
-    std::string trimmedString(str);
-    trimmedString.erase(0, trimmedString.find_first_not_of(" \t\n\r"));
-    trimmedString.erase(trimmedString.find_last_not_of(" \t\n\r") + 1);
-    return trimmedString;
-}
 
 int main(int argc, char *argv[])
 {
@@ -34,11 +26,16 @@ int main(int argc, char *argv[])
     int world_size;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
+    /*
+
     if (world_size < 2) {
         std::cerr << "This program requires atleast 2 MPI processes to run." << std::endl;
         MPI_Finalize();
         return 1;
-    }    
+    }
+    
+    */
+        
    
     auto start = std::chrono::high_resolution_clock::now(); 
 
