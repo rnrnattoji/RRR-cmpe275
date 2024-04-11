@@ -228,14 +228,15 @@ int main(int argc, char *argv[])
         double average = 0; 
         int count = 0;      
     };
+
     // #pragma omp parallel for num_threads(num_threads)
     std::map<std::string, std::map<std::string, AqiData>> locDateAqiMap;
 
     for (int i = start_index; i < end_index; ++i) {
         const auto &csv_loc_filename = locations[i];
 
-        for (int j=0; j<world_size; ++j){
-            std::string csv_loc_filepath = csv_loc_base_filepath + csv_loc_filename + "-" + std::to_string(i) + ".csv";
+        for (int j = 0; j < world_size; ++j){
+            std::string csv_loc_filepath = csv_loc_base_filepath + csv_loc_filename + "-" + std::to_string(j) + ".csv";
 
             std::ifstream fileCSV(csv_loc_filepath); // Asssuming your CSV file is named data.csv
 
@@ -317,16 +318,36 @@ int main(int argc, char *argv[])
     }
 
     std::string result = flattenedData.str();
-    std::cout << result << std::endl; 
+    // std::cout << result << std::endl; 
+
+    if (world_rank == 0) {
+        
+        std::string finalData;
+        finalData += result;
+
+        int data_recv_size;
+        for (int i = 1; i < world_size; ++i) {
+            MPI_Recv(&data_recv_size, 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            std::string data_recv(data_recv_size, '\0');
+            MPI_Recv(&data_recv[0], data_recv_size, MPI_CHAR, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            finalData += data_recv;
+        }
+
+        /*
+            // std::cout << finalData << std::endl;
+            TO DO: Work on the analysis. Check out.txt for the merged data (finalData)
+        
+        */
+        
+    } else {
+        int final_data_size = result.size();
+        MPI_Send(&final_data_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+        MPI_Send(result.c_str(), final_data_size, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+    }
 
     // Synchronization
     MPI_Barrier(MPI_COMM_WORLD);
-
-    if (world_rank == 0) {
-        auto end = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        std::cout << "Total Elapsed time: " << elapsed.count() << " microseconds\n";
-    }
 
     // Detach shared memory segment
     shmdt(shm);
@@ -334,6 +355,10 @@ int main(int argc, char *argv[])
     // Remove shared memory segment (only done by one process)
     if (world_rank == 0) {
         shmctl(shmid, IPC_RMID, NULL);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Total Elapsed time: " << elapsed.count() << " microseconds\n";
     }
 
     MPI_Finalize();
