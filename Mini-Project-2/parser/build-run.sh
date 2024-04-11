@@ -3,11 +3,16 @@
 #Change OMPI_CXX according to env
 export OMPI_CXX=clang++-18
 
+#cleanup
+
+rm -rf ./newData/*
+rm -rf ./build/*
+rm output/aqi_data.csv
+
 echo "Select the program you want to build and run:"
-echo "1) v4"
-echo "2) readCSV"
-echo "3) readCSVMPI"
-read -p "Enter your choice (1-3): " choice
+echo "1) mainHybrid"
+echo "2) mainSequential"
+read -p "Enter your choice (1 or 2): " choice
 
 threads=1
 
@@ -21,24 +26,17 @@ ask_threads() {
 
 case $choice in
   1)
-    echo "Compiling v4.cpp with mpic++..."
-    mpic++ v4.cpp -o ./build/execv4
+    echo "Compiling mainHybrid.cpp with mpic++..."
+    mpic++ mainHybrid.cpp -o ./build/execHybrid
     ask_threads
-    echo "Running ./build/execv4 with $threads threads..."
-    mpiexec -n $threads ./build/execv4
+    echo "Running ./build/execHybrid with $threads threads..."
+    mpiexec -n $threads ./build/execHybrid
     ;;
   2)
-    echo "Compiling readCSV.cpp with clang++-18..."
-    clang++-18 readCSV.cpp -o ./build/execreadCSV
-    echo "Running ./build/execreadCSV..."
-    ./build/execreadCSV
-    ;;
-  3)
-    echo "Compiling readCSVMPI.cpp with mpic++..."
-    mpic++ readCSVMPI.cpp -o ./build/execreadCSVMPI
-    ask_threads
-    echo "Running ./build/exereadCSVMPI with $threads threads..."
-    mpiexec -n $threads ./build/execreadCSVMPI
+    echo "Compiling mainSequential.cpp with clang++-18..."
+    clang++-18 mainSequential.cpp -o ./build/execSequential
+    echo "Running ./build/execSequential..."
+    ./build/execSequential
     ;;
   *)
     echo "Invalid selection. Please choose a number between 1 and 3."
