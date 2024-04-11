@@ -13,6 +13,7 @@
 #include <mpi.h>
 #include <omp.h>
 #include <chrono> 
+#include <map>
 
 
 
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
 
 
     std::string idv_parsed_data;
+    std::map<std::string, std::vector<std::string>> locationDataMap;
 
     int num_threads = 4;
 
@@ -85,8 +87,30 @@ int main(int argc, char *argv[])
             while (std::getline(csvFile, line))
             {
                 std::stringstream rowStream(line);
+                std::vector<std::string> rowData;
+                std::string cell;
 
                 std::string row = rowStream.str();
+
+                while (std::getline(rowStream, cell, ',')) {
+                    rowData.push_back(cell);
+                }
+
+                std::string locationName = rowData[9];
+                
+                if (!locationName.empty()) {
+                    // Remove the last character
+                    locationName.erase(locationName.length() - 1, 1);
+                }
+
+                if (!locationName.empty()) {
+                    // Remove the first character, which is now at index 0
+                    locationName.erase(0, 1);
+                }
+
+                if(rowData[7] != "\"-999\"" ) {
+                    locationDataMap[locationName].push_back(rowData[2]+','+rowData[7]);
+                } 
 
                 #pragma omp critical
                 {
@@ -98,6 +122,24 @@ int main(int argc, char *argv[])
             // Close the file
             csvFile.close();
         }
+    }
+
+    // for(auto &row: locationDataMap) {
+    //     std::cout<<row.first<<": "; 
+    //     for(auto &rowdata: row.second) {
+    //         std::cout<<rowdata<<", ";
+    //     }
+    //     std::cout<<"\n";
+    // }
+
+    for(auto &row: locationDataMap) {
+        std::ofstream file;
+        file.open("./newData/" + row.first + "-" + std::to_string(world_rank) + ".csv");
+           for(auto &rowdata: row.second) {
+            file<<rowdata<<"\n";
+        }
+
+        file.close();
     }
 
 
