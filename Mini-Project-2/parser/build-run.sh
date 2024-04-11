@@ -7,6 +7,8 @@ export OMPI_CXX=clang++-18
 
 rm -rf ./newData/*
 rm -rf ./build/*
+rm -rf ./newDataSequential/*
+rm -rf ./output_sequential/*
 rm output/aqi_data.csv
 
 echo "Select the program you want to build and run:"
