@@ -88,7 +88,11 @@ int main(int argc, char *argv[])
 
                 std::string row = rowStream.str();
 
-                idv_parsed_data += row + '\n';
+                #pragma omp critical
+                {
+                    idv_parsed_data += row + '\n';
+                }
+                
             }
 
             // Close the file
