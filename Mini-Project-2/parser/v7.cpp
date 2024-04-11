@@ -223,35 +223,101 @@ int main(int argc, char *argv[])
     end_index = ((world_rank + 1) * loc_count) / world_size;
     
     std::string csv_loc_base_filepath = "./newData/";
-    // #pragma omp parallel for num_threads(num_threads)
 
+    struct AqiData {
+        double average = 0; 
+        int count = 0;      
+    };
+    // #pragma omp parallel for num_threads(num_threads)
+    std::map<std::string, std::map<std::string, AqiData>> locDateAqiMap;
 
     for (int i = start_index; i < end_index; ++i) {
         const auto &csv_loc_filename = locations[i];
 
-        for (int i=0; i<world_size; ++i){
-            std::string csv_loc_filepath = csv_loc_base_filepath + csv_loc_filename + "-" + std::to_string(i) + ".csv"
+        for (int j=0; j<world_size; ++j){
+            std::string csv_loc_filepath = csv_loc_base_filepath + csv_loc_filename + "-" + std::to_string(i) + ".csv";
 
-            std::ifstream file(csv_loc_filepath); // Asssuming your CSV file is named data.csv
+            std::ifstream fileCSV(csv_loc_filepath); // Asssuming your CSV file is named data.csv
 
-            if (!file.is_open()) {
+            if (!fileCSV.is_open()) {
                 continue;
             }
 
             std::string line;
-            while (std::getline(file, line)) {
-                std::istringstream iss(line);
-                std::string token;
-                while (std::getline(iss, token, ',')) {
+            while (std::getline(fileCSV, line))
+            {
+                std::stringstream rowStream(line);
+                std::vector<std::string> rowData;
+                std::string cell;
 
-                    std::cout << token << " ";
+                std::string row = rowStream.str();
+
+                while (std::getline(rowStream, cell, ',')) {
+                    rowData.push_back(cell);
                 }
-                std::cout << std::endl;
+
+                std::string locDate = rowData[0];
+                size_t position = locDate.find('T');
+
+                if (position != std::string::npos) {
+                    locDate.erase(position);
+                }
+
+                if (!locDate.empty()) {
+                    locDate.erase(0, 1);
+                }
+
+                std::string locAqi = rowData[1];
+
+                if (!locAqi.empty()) {
+                    locAqi.erase(locAqi.length() - 1, 1);
+                }
+
+                if (!locAqi.empty()) {
+                    locAqi.erase(0, 1);
+                }
+
+                int aqiValue = std::stoi(locAqi);
+                auto& aqiData = locDateAqiMap[csv_loc_filename][locDate];
+                aqiData.count += 1;
+                aqiData.average = aqiData.average + (aqiValue - aqiData.average) / aqiData.count;
             }
 
-            file.close();   
+            fileCSV.close();   
         }
     }
+
+    // for (const auto& loc : locDateAqiMap) {
+    //     for (const auto& date : loc.second) {
+    //         std::cout << "Location: " << loc.first
+    //                   << ", Date: " << date.first
+    //                   << ", Average AQI: " << date.second.average << std::endl;
+    //     }
+    // }
+
+    std::ostringstream flattenedData;
+    bool firstCity = true;
+
+    for (const auto& locEntry : locDateAqiMap) {
+        if (!firstCity) {
+            flattenedData << "\n";
+        }
+        firstCity = false;
+
+        flattenedData << locEntry.first << "CITY_NAME";
+
+        bool firstDate = true;
+        for (const auto& dateEntry : locEntry.second) {
+            if (!firstDate) {
+                flattenedData << ",NEW_DAY";
+            }
+            firstDate = false;
+            flattenedData << dateEntry.first << "," << dateEntry.second.average;
+        }
+    }
+
+    std::string result = flattenedData.str();
+    std::cout << result << std::endl; 
 
     // Synchronization
     MPI_Barrier(MPI_COMM_WORLD);
