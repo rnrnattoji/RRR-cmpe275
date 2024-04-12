@@ -22,6 +22,7 @@ struct AQIEntry {
     double aqi;
 };
 
+// Function to split String by Delimiter
 std::vector<std::string> splitByStringDelimiter(const std::string& s, const std::string& delimiter) {
     size_t pos_start = 0, pos_end, delim_len = delimiter.length();
     std::string token;
@@ -37,7 +38,7 @@ std::vector<std::string> splitByStringDelimiter(const std::string& s, const std:
     return res;
 }
 
-
+// Function to parse AQI Data
 std::vector<AQIEntry> parseAQIData(const std::string& data) {
     std::vector<AQIEntry> entries;
     auto cityDataSegments = splitByStringDelimiter(data, "\n");
@@ -69,7 +70,7 @@ std::vector<AQIEntry> parseAQIData(const std::string& data) {
     return entries;
 }
 
-
+// Function to Write Data to CSV File
 void writeCSV(const std::vector<AQIEntry>& entries, const std::string& filename) {
     std::ofstream file(filename);
     file << "City,Date,AQI\n";
@@ -118,6 +119,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Dividing the workload (CSV files) to each MPI Processes
     int start_index = (world_rank * entry_count) / world_size;
     int end_index = ((world_rank + 1) * entry_count) / world_size;
 
@@ -169,6 +171,7 @@ int main(int argc, char *argv[])
                     locationName.erase(0, 1);
                 }
 
+                // Ignoring the row with missing value (-999)
                 if(rowData[7] != "\"-999\"" ) {
                     #pragma omp critical
                     {
@@ -200,7 +203,17 @@ int main(int argc, char *argv[])
     key_t key = 1234; // Change this key as needed
     int shared_mem_size;
     char *shm;
+    
+    /*
 
+    Here data is unique locations captured by individual process.
+    Rank 0 append it's share of data and loops through world_size to receive date from other processes as well.
+    Once the data is aggregated it can have duplicates.
+    So the Rank 0 removes duplicates and creates a Shared Memory and writes this unique locations data.
+    Subsequently other processes attaches itself to the shared memory.
+
+    */
+   
     if (world_rank == 0) {
         std::string all_data_str;
         all_data_str += location_names;
@@ -264,6 +277,18 @@ int main(int argc, char *argv[])
     // Synchronization
     MPI_Barrier(MPI_COMM_WORLD);
 
+    /*
+
+    Now our analysis of Average AQI per location per day begins.
+
+    Again the workload (unique locations) are distributed to each process for analysis.
+    NOTE: Here Shared Memory is used by all the processes.
+
+    Once the calculation is done, the result is aggregated by Rank 0.
+
+    The result is converted to a Single CSV and Visualized by Rank 0.
+
+    */
     int data_size = strlen(shm);
     char* local_data = new char[data_size + 1];
     strncpy(local_data, shm, data_size);
