@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     std::string result = flattenedData.str();
 
     auto final_entries = parseAQIData(result);
-    writeCSV(final_entries, "./output_sequential/aqi_data.csv");
+    writeCSV(final_entries, "./outputSequential/aqi_data.csv");
 
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);

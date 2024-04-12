@@ -1,6 +1,0 @@
-export OMPI_CXX=clang++-18
-
-mpic++ mainHybrid.cpp -o mpi_example
-
-mpiexec -n 1 ./mpi_example
-mpiexec -n 2 ./mpi_example

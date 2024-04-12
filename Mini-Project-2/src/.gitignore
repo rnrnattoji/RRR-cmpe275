@@ -1,0 +1,5 @@
+*exec*
+newData/*.csv
+newDataSequential/*.csv
+output/*
+outputSequential/*
